@@ -1,0 +1,33 @@
+ExportedObj/
+.consulo/
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.svd
+*.pdb
+*.opendb
+
+# Visual Studio cache directory
+.vs/
+
+# C# project build files
+CSharpProject/ShuHai\.Unity\.Coroutines/bin/
+CSharpProject/ShuHai\.Unity\.Coroutines/obj/
+
+# Unity assemblies
+CSharpProject/references/2017\.1/UnityEngine\.dll
+CSharpProject/references/2017\.1/UnityEngine\.xml
+CSharpProject/references/2018\.3/UnityEngine\.dll
+CSharpProject/references/2018\.3/UnityEngine\.xml
+CSharpProject/references/5\.3/UnityEngine\.dll
+CSharpProject/references/5\.3/UnityEngine\.xml
+
+# Unity generated files
+UnityProject/Library/
+UnityProject/UnityProject\.csproj
+UnityProject/UnityProject\.Editor\.csproj
+UnityProject/UnityProject\.sln
+*.pidb.meta
+*.pdb.meta
