@@ -31,3 +31,9 @@ UnityProject/UnityProject\.Editor\.csproj
 UnityProject/UnityProject\.sln
 *.pidb.meta
 *.pdb.meta
+
+# Assemblies will copy to this directory automantically after a sucessful build
+UnityProject/Assets/ShuHai/Assemblies/
+
+UnityProject/ImportPluginProjects\.bat
+UnityProject/ImportPluginProjects\.json

@@ -150,6 +150,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(TargetDir)$(TargetName).*" "$(ProjectDir)..\..\UnityProject\Assets\ShuHai\Assemblies" /i /y</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(TargetDir)ShuHai.Core.*" "$(ProjectDir)..\..\UnityProject\Assets\ShuHai\Assemblies" /i /y
+xcopy "$(TargetDir)ShuHai.Unity.Core.*" "$(ProjectDir)..\..\UnityProject\Assets\ShuHai\Assemblies" /i /y
+xcopy "$(TargetDir)$(TargetName).*" "$(ProjectDir)..\..\UnityProject\Assets\ShuHai\Assemblies" /i /y</PostBuildEvent>
   </PropertyGroup>
 </Project>
