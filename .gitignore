@@ -37,3 +37,7 @@ UnityProject/Assets/ShuHai/Assemblies/
 
 UnityProject/ImportPluginProjects\.bat
 UnityProject/ImportPluginProjects\.json
+
+CSharpProject/ShuHai\.Unity\.Coroutines\.Editor/bin/
+
+CSharpProject/ShuHai\.Unity\.Coroutines\.Editor/obj/

@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ShuHai.Unity.Coroutines")]
+[assembly: AssemblyTitle("ShuHai.Unity.Coroutines.Editor")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ShuHai.Unity.Coroutines")]
+[assembly: AssemblyProduct("ShuHai.Unity.Coroutines.Editor")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -19,10 +19,8 @@ using System.Runtime.InteropServices;
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
 
-[assembly: InternalsVisibleTo("ShuHai.Unity.Coroutines.Editor")]
-
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("e7b2645b-84ed-422d-97d8-dcfc15bc21b4")]
+[assembly: Guid("0573e1c6-5f4f-4656-83ee-c049e6e00f37")]
 
 // Version information for an assembly consists of the following four values:
 //

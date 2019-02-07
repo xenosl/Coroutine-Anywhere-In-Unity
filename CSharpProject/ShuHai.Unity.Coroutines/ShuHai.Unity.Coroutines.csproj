@@ -76,70 +76,37 @@
     <Reference Include="UnityEngine">
       <HintPath>..\references\5.3\UnityEngine.dll</HintPath>
     </Reference>
-    <Reference Include="ShuHai.Core">
-      <HintPath>..\references\ShuHai.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="ShuHai.Unity.Core">
-      <HintPath>..\references\5.3\ShuHai.Unity.Core.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release-5.3+|AnyCPU' ">
     <Reference Include="UnityEngine">
       <HintPath>..\references\5.3\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="ShuHai.Core">
-      <HintPath>..\references\ShuHai.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="ShuHai.Unity.Core">
-      <HintPath>..\references\5.3\ShuHai.Unity.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug-2017.1+|AnyCPU' ">
     <Reference Include="UnityEngine">
       <HintPath>..\references\2017.1\UnityEngine.dll</HintPath>
     </Reference>
-    <Reference Include="ShuHai.Core">
-      <HintPath>..\references\ShuHai.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="ShuHai.Unity.Core">
-      <HintPath>..\references\2017.1\ShuHai.Unity.Core.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release-2017.1+|AnyCPU' ">
     <Reference Include="UnityEngine">
       <HintPath>..\references\2017.1\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="ShuHai.Core">
-      <HintPath>..\references\ShuHai.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="ShuHai.Unity.Core">
-      <HintPath>..\references\2017.1\ShuHai.Unity.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug-2018.3+|AnyCPU' ">
     <Reference Include="UnityEngine">
       <HintPath>..\references\2018.3\UnityEngine.dll</HintPath>
     </Reference>
-    <Reference Include="ShuHai.Core">
-      <HintPath>..\references\ShuHai.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="ShuHai.Unity.Core">
-      <HintPath>..\references\2018.3\ShuHai.Unity.Core.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release-2018.3+|AnyCPU' ">
     <Reference Include="UnityEngine">
       <HintPath>..\references\2018.3\UnityEngine.dll</HintPath>
     </Reference>
-    <Reference Include="ShuHai.Core">
-      <HintPath>..\references\ShuHai.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="ShuHai.Unity.Core">
-      <HintPath>..\references\2018.3\ShuHai.Unity.Core.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes.cs" />
     <Compile Include="Coroutine.cs" />
+    <Compile Include="CoroutineBehaviour.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="IYield.cs" />
     <Compile Include="IYieldAdapter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -150,8 +117,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(TargetDir)ShuHai.Core.*" "$(ProjectDir)..\..\UnityProject\Assets\ShuHai\Assemblies" /i /y
-xcopy "$(TargetDir)ShuHai.Unity.Core.*" "$(ProjectDir)..\..\UnityProject\Assets\ShuHai\Assemblies" /i /y
-xcopy "$(TargetDir)$(TargetName).*" "$(ProjectDir)..\..\UnityProject\Assets\ShuHai\Assemblies" /i /y</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(TargetDir)$(TargetName).*" "$(ProjectDir)..\..\UnityProject\Assets\ShuHai\Assemblies" /i /y</PostBuildEvent>
   </PropertyGroup>
 </Project>

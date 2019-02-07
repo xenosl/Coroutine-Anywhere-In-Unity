@@ -12,11 +12,9 @@ namespace ShuHai.Unity.Coroutines
     {
         public readonly IEnumerator Routine;
 
-        public string Name => name.Value;
-
-        private readonly Lazy<string> name;
-
         public IYield CurrentYield { get; private set; }
+
+        #region Constructors
 
         public Coroutine(IEnumerator routine, Action done = null) : this(routine, null, done) { }
 
@@ -24,10 +22,9 @@ namespace ShuHai.Unity.Coroutines
 
         public Coroutine(IEnumerator routine, string name, int updateMultiplier, Action done = null)
         {
-            Ensure.Argument.NotNull(routine, nameof(routine));
+            Routine = routine ?? throw new ArgumentNullException(nameof(routine));
 
-            Routine = routine;
-            this.name = new Lazy<string>(string.IsNullOrEmpty(name) ? (Func<string>)ParseName : () => name);
+            this.name = name;
 
             UpdateMultiplier = updateMultiplier;
 
@@ -35,14 +32,30 @@ namespace ShuHai.Unity.Coroutines
                 Done += done;
         }
 
-        private string ParseName()
+        #endregion Constructors
+
+        #region Name
+
+        public string Name
         {
-            var str = Routine.ToString();
-            var splitted = str.Split('<', '>');
-            return splitted.Length == 3 ? splitted[1] : str;
+            get
+            {
+                if (name != null)
+                    return name;
+
+                var str = Routine.ToString();
+                var splitted = str.Split('<', '>');
+                name = splitted.Length == 3 ? splitted[1] : str;
+
+                return name;
+            }
         }
 
+        private string name;
+
         public override string ToString() => typeof(Coroutine).Name + '<' + Name + '>';
+
+        #endregion Name
 
         #region Flow Control
 
@@ -60,9 +73,9 @@ namespace ShuHai.Unity.Coroutines
         {
             LogStart();
 
-            update += Update;
-
             startedInstances.Add(Routine, this);
+
+            updates += Update;
 
             MoveNext();
         }
@@ -76,7 +89,8 @@ namespace ShuHai.Unity.Coroutines
 
         public static Coroutine Start(IEnumerator routine, string name, Action done = null)
         {
-            Ensure.Argument.NotNull(routine, nameof(routine));
+            if (routine == null)
+                throw new ArgumentNullException(nameof(routine));
 
             if (startedInstances.TryGetValue(routine, out var coroutine))
                 return coroutine;
@@ -106,9 +120,9 @@ namespace ShuHai.Unity.Coroutines
                 StopCurrentYield();
             CurrentYield = null;
 
-            startedInstances.Remove(Routine);
+            updates -= Update;
 
-            update -= Update;
+            startedInstances.Remove(Routine);
 
             Done?.Invoke();
             Done = null;
@@ -126,7 +140,8 @@ namespace ShuHai.Unity.Coroutines
         /// </returns>
         public static bool Stop(IEnumerator routine)
         {
-            Ensure.Argument.NotNull(routine, nameof(routine));
+            if (routine == null)
+                throw new ArgumentNullException(nameof(routine));
 
             if (!startedInstances.TryGetValue(routine, out var coroutine))
                 return false;
@@ -168,7 +183,8 @@ namespace ShuHai.Unity.Coroutines
         /// </remarks>
         public static void Finish(IEnumerator routine, Action done = null)
         {
-            Ensure.Argument.NotNull(routine, nameof(routine));
+            if (routine == null)
+                throw new ArgumentNullException(nameof(routine));
 
             if (!startedInstances.TryGetValue(routine, out var coroutine))
                 coroutine = new Coroutine(routine);
@@ -190,7 +206,11 @@ namespace ShuHai.Unity.Coroutines
         /// <summary>
         ///     Decide how many times the current instance is updated in one frame.
         /// </summary>
-        public int UpdateMultiplier { get => updateMultiplier; set => updateMultiplier = value.Clamp(1, int.MaxValue); }
+        public int UpdateMultiplier
+        {
+            get => updateMultiplier;
+            set => updateMultiplier = Mathf.Clamp(value, 1, int.MaxValue);
+        }
 
         private int updateMultiplier = 1;
 
@@ -217,23 +237,9 @@ namespace ShuHai.Unity.Coroutines
             }
         }
 
-        private static event Action update
-        {
-            add
-            {
-                if (EditorApp.Valid)
-                    EditorApp.Update += value;
-                else
-                    Root.Update.AddCallback(value);
-            }
-            remove
-            {
-                if (EditorApp.Valid)
-                    EditorApp.Update -= value;
-                else
-                    Root.Update.RemoveCallback(value);
-            }
-        }
+        private static event Action updates;
+
+        internal static void UpdateAll() { updates?.Invoke(); }
 
         #endregion Update
 
@@ -301,18 +307,19 @@ namespace ShuHai.Unity.Coroutines
 
         public static void SetYieldAdapter(Type type, IYieldAdapter adapter)
         {
-            Ensure.Argument.NotNull(type, nameof(type));
-            Ensure.Argument.NotNull(adapter, nameof(adapter));
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
 
-            yieldAdapters[type] = adapter;
+            yieldAdapters[type] = adapter ?? throw new ArgumentNullException(nameof(adapter));
         }
 
         public static IYieldAdapter GetYieldAdapter(Type type, bool useBaseOnNotFound = true)
         {
-            Ensure.Argument.NotNull(type, nameof(type));
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
 
             if (!useBaseOnNotFound)
-                return yieldAdapters.GetValue(type);
+                return yieldAdapters.TryGetValue(type, out var adapter) ? adapter : null;
 
             var t = type;
             while (t != null)
@@ -338,8 +345,13 @@ namespace ShuHai.Unity.Coroutines
                 var target = type.GetCustomAttribute<TargetTypeAttribute>();
                 if (target != null)
                     SetYieldAdapter(target.Value, instance);
+
                 var targets = type.GetCustomAttribute<TargetTypesAttribute>();
-                targets?.Values.ForEach(t => SetYieldAdapter(t, instance));
+                if (targets != null)
+                {
+                    foreach (var t in targets.Values)
+                        SetYieldAdapter(t, instance);
+                }
             }
         }
 
@@ -355,7 +367,7 @@ namespace ShuHai.Unity.Coroutines
 
         private static void Log(string message)
         {
-            if (DebugLogEnabled && DebugLogPrecondition.InvokeIfNotNull(true))
+            if (DebugLogEnabled && (DebugLogPrecondition?.Invoke() ?? false))
                 Debug.Log(message);
         }
 
