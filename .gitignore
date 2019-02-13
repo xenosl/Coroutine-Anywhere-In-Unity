@@ -15,29 +15,32 @@ ExportedObj/
 # C# project build files
 CSharpProject/ShuHai\.Unity\.Coroutines/bin/
 CSharpProject/ShuHai\.Unity\.Coroutines/obj/
+CSharpProject/ShuHai\.Unity\.Coroutines\.Editor/bin/
+CSharpProject/ShuHai\.Unity\.Coroutines\.Editor/obj/
 
-# Unity assemblies
-CSharpProject/references/2017\.1/UnityEngine\.dll
-CSharpProject/references/2017\.1/UnityEngine\.xml
-CSharpProject/references/2018\.3/UnityEngine\.dll
-CSharpProject/references/2018\.3/UnityEngine\.xml
-CSharpProject/references/5\.3/UnityEngine\.dll
-CSharpProject/references/5\.3/UnityEngine\.xml
+# C# project custom assembly references
+CSharpProject/references/
 
 # Unity generated files
 UnityProject/Library/
+UnityProject/Temp/
 UnityProject/UnityProject\.csproj
 UnityProject/UnityProject\.Editor\.csproj
 UnityProject/UnityProject\.sln
 *.pidb.meta
 *.pdb.meta
 
+# Asset Store Tools
+UnityProject/Assets/AssetStoreTools/
+UnityProject/Assets/AssetStoreTools\.meta
+
 # Assemblies will copy to this directory automantically after a sucessful build
 UnityProject/Assets/ShuHai/Assemblies/
 
+# Generated archives
+UnityProject/Assets/ShuHai/Archives/*.zip
+UnityProject/Assets/ShuHai/Archives/*.zip.meta
+
+# Scripts to generate c# projects for debugging
 UnityProject/ImportPluginProjects\.bat
 UnityProject/ImportPluginProjects\.json
-
-CSharpProject/ShuHai\.Unity\.Coroutines\.Editor/bin/
-
-CSharpProject/ShuHai\.Unity\.Coroutines\.Editor/obj/
