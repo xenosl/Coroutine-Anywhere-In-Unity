@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ShuHai.Unity.Coroutines
 {
-    [TargetTypes(typeof(WaitForSeconds))]
+    [YieldAdapterTarget(typeof(WaitForSeconds))]
     internal class WaitForSecondsAdapter : IYieldAdapter
     {
         public IYield ToYield(object yieldObject)
@@ -17,7 +17,7 @@ namespace ShuHai.Unity.Coroutines
     }
 
 #if UNITY_2017_1_OR_NEWER
-    [TargetTypes(typeof(WaitForSecondsRealtime))]
+    [YieldAdapterTarget(typeof(WaitForSecondsRealtime))]
     internal class WaitForSecondsRealtimeAdapter : IYieldAdapter
     {
         public IYield ToYield(object yieldObject)
@@ -37,20 +37,20 @@ namespace ShuHai.Unity.Coroutines
 #if UNITY_2018_3_OR_NEWER
 // No code here since WWW is obsolete start from 2018.3
 #else
-    [TargetType(typeof(WWW))]
+    [YieldAdapterTarget(typeof(WWW))]
     internal class WWWAdapter : IYieldAdapter
     {
         public IYield ToYield(object yieldObject) { return new WaitWWW((WWW)yieldObject); }
     }
 #endif
 
-    [TargetType(typeof(AsyncOperation))]
+    [YieldAdapterTarget(typeof(AsyncOperation))]
     internal class AsyncOperationAdapter : IYieldAdapter
     {
         public IYield ToYield(object yieldObject) { return new WaitAsyncOperation((AsyncOperation)yieldObject); }
     }
 
-    [TargetType(typeof(UnityEngine.WaitWhile))]
+    [YieldAdapterTarget(typeof(UnityEngine.WaitWhile))]
     internal class WaitWhileAdapter : IYieldAdapter
     {
         public IYield ToYield(object yieldObject)
@@ -60,7 +60,7 @@ namespace ShuHai.Unity.Coroutines
         }
     }
 
-    [TargetType(typeof(UnityEngine.WaitUntil))]
+    [YieldAdapterTarget(typeof(UnityEngine.WaitUntil))]
     internal class WaitUntilAdapter : IYieldAdapter
     {
         public IYield ToYield(object yieldObject)

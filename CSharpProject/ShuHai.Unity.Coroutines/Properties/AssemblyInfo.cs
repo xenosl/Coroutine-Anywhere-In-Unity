@@ -19,8 +19,6 @@ using System.Runtime.InteropServices;
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
 
-[assembly: InternalsVisibleTo("ShuHai.Unity.Coroutines.Editor")]
-
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("e7b2645b-84ed-422d-97d8-dcfc15bc21b4")]
 
@@ -36,3 +34,5 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+
+[assembly: InternalsVisibleTo("ShuHai.Unity.Coroutines.Editor")]

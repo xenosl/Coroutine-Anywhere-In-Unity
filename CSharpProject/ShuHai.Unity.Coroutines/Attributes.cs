@@ -2,17 +2,40 @@
 
 namespace ShuHai.Unity.Coroutines
 {
-    public class TargetTypeAttribute : Attribute
+    /// <summary>
+    ///     Specifies the adapt target type of <see cref="IYieldAdapter" />.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    public class YieldAdapterTargetAttribute : Attribute
     {
-        public Type Value;
+        /// <summary>
+        ///     Type of the adapt targets.
+        /// </summary>
+        public Type Type;
 
-        public TargetTypeAttribute(Type value) { Value = value; }
+        /// <summary>
+        ///     Initialize a new instance of <see cref="YieldAdapterTargetAttribute" /> with <see cref="Type" /> of adapt targets.
+        /// </summary>
+        /// <param name="type">Type of adapt targets.</param>
+        public YieldAdapterTargetAttribute(Type type) { Type = type; }
     }
 
-    public class TargetTypesAttribute : Attribute
+    /// <summary>
+    ///     Specifies the adapt target types of <see cref="IYieldAdapter" />.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    public class YieldAdapterTargetsAttribute : Attribute
     {
-        public Type[] Values;
+        /// <summary>
+        ///     Types of the adapt targets.
+        /// </summary>
+        public Type[] Types;
 
-        public TargetTypesAttribute(params Type[] values) { Values = values; }
+        /// <summary>
+        ///     Initialize a new instance of <see cref="YieldAdapterTargetsAttribute" /> with <see cref="Type" />s of adapt
+        ///     targets.
+        /// </summary>
+        /// <param name="types">Types of adapt targets.</param>
+        public YieldAdapterTargetsAttribute(params Type[] types) { Types = types; }
     }
 }

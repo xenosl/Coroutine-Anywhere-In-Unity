@@ -8,18 +8,45 @@ namespace ShuHai.Unity.Coroutines
 {
     using CoroutineDict = Dictionary<IEnumerator, Coroutine>;
 
+    /// <summary>
+    ///     Represents a coroutine. Provides functionalities for controling coroutines.
+    /// </summary>
     public sealed class Coroutine : IYield
     {
+        /// <summary>
+        ///     The coroutine enumerator that current instance represents.
+        /// </summary>
         public readonly IEnumerator Routine;
 
+        /// <summary>
+        ///     Current yield object of current instance (if the current instance is started).
+        /// </summary>
         public IYield CurrentYield { get; private set; }
 
         #region Constructors
 
+        /// <summary>
+        ///     Initialize a new coroutine with optional callback on its execution done.
+        /// </summary>
+        /// <param name="routine">The coroutine to start.</param>
+        /// <param name="done">Callback executes when the coroutine is done.</param>
         public Coroutine(IEnumerator routine, Action done = null) : this(routine, null, done) { }
 
+        /// <summary>
+        ///     Initialize a new coroutine with specified name and optional callback on its execution done.
+        /// </summary>
+        /// <param name="routine">The coroutine to start.</param>
+        /// <param name="name">Name of the coroutine, commonly used for debug log.</param>
+        /// <param name="done">Callback executes when the coroutine is done.</param>
         public Coroutine(IEnumerator routine, string name, Action done = null) : this(routine, name, 1, done) { }
 
+        /// <summary>
+        ///     Initialize a new coroutine with specified name, update multiplier and optional callback on its execution done.
+        /// </summary>
+        /// <param name="routine">The coroutine to start.</param>
+        /// <param name="name">Name of the coroutine, commonly used for debug log.</param>
+        /// <param name="updateMultiplier">Determines how many times the coroutine is executed per frame.</param>
+        /// <param name="done">Callback executes when the coroutine is done.</param>
         public Coroutine(IEnumerator routine, string name, int updateMultiplier, Action done = null)
         {
             Routine = routine ?? throw new ArgumentNullException(nameof(routine));
@@ -36,6 +63,10 @@ namespace ShuHai.Unity.Coroutines
 
         #region Name
 
+        /// <summary>
+        ///     Name of the coroutine. The value is assigned from constructor or extract from <see cref="Routine" /> object.
+        ///     Commonly used for debug when <see cref="DebugLogEnabled" /> is <see langword="true" />.
+        /// </summary>
         public string Name
         {
             get
@@ -53,6 +84,7 @@ namespace ShuHai.Unity.Coroutines
 
         private string name;
 
+        /// <inheritdoc />
         public override string ToString() => typeof(Coroutine).Name + '<' + Name + '>';
 
         #endregion Name
@@ -61,6 +93,13 @@ namespace ShuHai.Unity.Coroutines
 
         #region Start
 
+        /// <summary>
+        ///     Starts the coroutine.
+        /// </summary>
+        /// <returns>
+        ///     <see langword="true" /> if the coroutine successfully starts; otherwise, <see langword="false" /> if the
+        ///     coroutine is already started.
+        /// </returns>
         public bool Start()
         {
             if (startedInstances.ContainsKey(Routine))
@@ -83,10 +122,17 @@ namespace ShuHai.Unity.Coroutines
         /// <summary>
         ///     Initialzies a new coroutine and start it.
         /// </summary>
-        /// <param name="routine">The coroutine enumerator.</param>
-        /// <param name="done">Event triggered when the coroutine stopped.</param>
+        /// <param name="routine">The coroutine to start.</param>
+        /// <param name="done">Callback that executes when the coroutine stops.</param>
         public static Coroutine Start(IEnumerator routine, Action done = null) { return Start(routine, null, done); }
 
+        /// <summary>
+        ///     Initialize a new coroutine and start it.
+        /// </summary>
+        /// <param name="routine">The coroutine to start.</param>
+        /// <param name="name">Name of the coroutine, commonly used for debug log.</param>
+        /// <param name="done">Callback that executes when the coroutine stops.</param>
+        /// <returns></returns>
         public static Coroutine Start(IEnumerator routine, string name, Action done = null)
         {
             if (routine == null)
@@ -104,8 +150,18 @@ namespace ShuHai.Unity.Coroutines
 
         #region Stop
 
+        /// <summary>
+        ///     Event that triggers when the current coroutine instance is done (stopped).
+        /// </summary>
         public event Action Done;
 
+        /// <summary>
+        ///     Stops the coroutine.
+        /// </summary>
+        /// <returns>
+        ///     <see langword="true" /> if the coroutine successfully stopped; otherwise, <see langword="false" /> if the
+        ///     coroutine is not running.
+        /// </returns>
         public bool Stop()
         {
             if (!startedInstances.ContainsKey(Routine))
@@ -131,12 +187,12 @@ namespace ShuHai.Unity.Coroutines
         }
 
         /// <summary>
-        ///     Stops a coroutine.
+        ///     Stops the coroutine.
         /// </summary>
-        /// <param name="routine">The coroutine enumerator.</param>
+        /// <param name="routine">The coroutine to stop.</param>
         /// <returns>
-        ///     <see langword="true" /> if the coroutine successfully stopped; or <see langword="false" /> if the specified
-        ///     coroutine sequence already stopped.
+        ///     <see langword="true" /> if the coroutine successfully stopped; otherwise, <see langword="false" /> if the
+        ///     coroutine is not running.
         /// </returns>
         public static bool Stop(IEnumerator routine)
         {
@@ -153,6 +209,15 @@ namespace ShuHai.Unity.Coroutines
 
         #region Finish
 
+        /// <summary>
+        ///     Finish executing the coroutine immediately (execute the coroutine until it is done).
+        /// </summary>
+        /// <remarks>
+        ///     Whether the coroutine is done or not is determined by the return value of <see cref="IEnumerator.MoveNext" />,
+        ///     this makes the coroutine never stop until <see cref="IEnumerator.MoveNext" /> of <see cref="Routine" /> field
+        ///     returns <see langword="false" />. This means that if your coroutine never ends, call this method leads to a DEAD
+        ///     LOOP!
+        /// </remarks>
         public void Finish()
         {
             Start();
@@ -173,13 +238,15 @@ namespace ShuHai.Unity.Coroutines
         }
 
         /// <summary>
-        ///     Initializes a new coroutine and execute it to the end immediately.
+        ///     Initializes a new coroutine and execute until it is done.
         /// </summary>
-        /// <param name="routine">Enumerator of the specified coroutine.</param>
-        /// <param name="done">Event triggered when the coroutine is done.</param>
+        /// <param name="routine">The coroutine to execute.</param>
+        /// <param name="done">Callback that executes when the coroutine stops.</param>
         /// <remarks>
-        ///     This means that treat the coroutine as normal execution sequence and synchronal executed.
-        ///     Note that <see cref="IYield.Update" /> method of all yield instructions would not be called during the execution.
+        ///     Whether the coroutine is done or not is determined by the return value of <see cref="IEnumerator.MoveNext" />,
+        ///     this makes the coroutine never stop until <see cref="IEnumerator.MoveNext" /> of <see cref="Routine" /> field
+        ///     returns <see langword="false" />. This means that if your coroutine never ends, call this method leads to a DEAD
+        ///     LOOP!
         /// </remarks>
         public static void Finish(IEnumerator routine, Action done = null)
         {
@@ -195,16 +262,10 @@ namespace ShuHai.Unity.Coroutines
 
         #endregion Finish
 
-        #region Pause
-
-        public bool SelfPaused;
-
-        #endregion Pause
-
         #region Update
 
         /// <summary>
-        ///     Decide how many times the current instance is updated in one frame.
+        ///     Determines how many times the current coroutine is updated per frame.
         /// </summary>
         public int UpdateMultiplier
         {
@@ -217,10 +278,7 @@ namespace ShuHai.Unity.Coroutines
         private void Update()
         {
             for (int i = 0; i < UpdateMultiplier; ++i)
-            {
-                if (!SelfPaused)
-                    UpdateImpl();
-            }
+                UpdateImpl();
         }
 
         private void UpdateImpl()
@@ -289,6 +347,9 @@ namespace ShuHai.Unity.Coroutines
 
         #region As Yield Instruction
 
+        /// <summary>
+        ///     Indicates whether the current instance is done.
+        /// </summary>
         public bool IsDone => CurrentYield != null ? CurrentYield.IsDone && moveEnded : moveEnded;
 
         void IYield.Start()
@@ -305,6 +366,14 @@ namespace ShuHai.Unity.Coroutines
 
         #region Yield Adapters
 
+        /// <summary>
+        ///     Set the yield adapter for specified type of objects that not implemented <see cref="IYield" />. In this way you can
+        ///     treat any object as yield object for the coroutine.
+        /// </summary>
+        /// <param name="type">Type of object to be converted for the adapter.</param>
+        /// <param name="adapter">
+        ///     The adapter that converts objects from specified <paramref name="type" /> to <see cref="IYield" />.
+        /// </param>
         public static void SetYieldAdapter(Type type, IYieldAdapter adapter)
         {
             if (type == null)
@@ -313,6 +382,13 @@ namespace ShuHai.Unity.Coroutines
             yieldAdapters[type] = adapter ?? throw new ArgumentNullException(nameof(adapter));
         }
 
+        /// <summary>
+        ///     Get the yield adapter for specified type.
+        /// </summary>
+        /// <param name="type">Type of object to be converted for the adapter.</param>
+        /// <param name="useBaseOnNotFound">
+        ///     Base type of <paramref name="type" /> is used if adapter for <paramref name="type" /> not found.
+        /// </param>
         public static IYieldAdapter GetYieldAdapter(Type type, bool useBaseOnNotFound = true)
         {
             if (type == null)
@@ -342,14 +418,14 @@ namespace ShuHai.Unity.Coroutines
             foreach (var type in adapterTypes)
             {
                 var instance = (IYieldAdapter)Activator.CreateInstance(type);
-                var target = type.GetCustomAttribute<TargetTypeAttribute>();
+                var target = type.GetCustomAttribute<YieldAdapterTargetAttribute>();
                 if (target != null)
-                    SetYieldAdapter(target.Value, instance);
+                    SetYieldAdapter(target.Type, instance);
 
-                var targets = type.GetCustomAttribute<TargetTypesAttribute>();
+                var targets = type.GetCustomAttribute<YieldAdapterTargetsAttribute>();
                 if (targets != null)
                 {
-                    foreach (var t in targets.Values)
+                    foreach (var t in targets.Types)
                         SetYieldAdapter(t, instance);
                 }
             }
@@ -361,19 +437,30 @@ namespace ShuHai.Unity.Coroutines
 
         #region Debug
 
+        /// <summary>
+        ///     Indicates whether debug log is enabled.
+        /// </summary>
+        /// <remarks>
+        ///     If <see cref="DebugLogEnabled" /> is set to <see langword="true" />, <see cref="Debug.Log(object)" /> is called
+        ///     when any coroutine starts or stops with its name.
+        /// </remarks>
         public static bool DebugLogEnabled;
 
-        public static Func<bool> DebugLogPrecondition;
+        /// <summary>
+        ///     Determine whether the debug messages is logged. All messages are logged if the value is set to
+        ///     <see langword="null" />; or messages are logged when the delegate returns <see langword="true" />.
+        /// </summary>
+        public static Func<Coroutine, bool> DebugLogPrecondition;
 
-        private static void Log(string message)
+        private static void Log(Coroutine coroutine, string message)
         {
-            if (DebugLogEnabled && (DebugLogPrecondition?.Invoke() ?? false))
+            if (DebugLogEnabled && (DebugLogPrecondition?.Invoke(coroutine) ?? false))
                 Debug.Log(message);
         }
 
-        private void LogStart() { Log(Name + " Start"); }
+        private void LogStart() { Log(this, Name + " Start"); }
 
-        private void LogStop() { Log(Name + " Stop"); }
+        private void LogStop() { Log(this, Name + " Stop"); }
 
         #endregion Debug
     }

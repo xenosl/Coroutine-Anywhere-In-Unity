@@ -54,6 +54,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(TargetDir)$(TargetName).*" "$(ProjectDir)..\..\UnityProject\Assets\ShuHai\Assemblies" /i /y</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(TargetDir)$(TargetName).*" "$(ProjectDir)..\..\UnityProject\Assets\ShuHai\Assemblies\Editor" /i /y</PostBuildEvent>
   </PropertyGroup>
 </Project>
