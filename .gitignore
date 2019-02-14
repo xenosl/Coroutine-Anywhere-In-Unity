@@ -35,12 +35,12 @@ UnityProject/Assets/AssetStoreTools/
 UnityProject/Assets/AssetStoreTools\.meta
 
 # Assemblies will copy to this directory automantically after a sucessful build
-UnityProject/Assets/ShuHai/Assemblies/
+UnityProject/Assets/ShuHai/Assemblies/ShuHai.Unity.Coroutines.*
 
 # Generated archives
 UnityProject/Assets/ShuHai/Archives/*.zip
 UnityProject/Assets/ShuHai/Archives/*.zip.meta
 
-# Scripts to generate c# projects for debugging
-UnityProject/ImportPluginProjects\.bat
-UnityProject/ImportPluginProjects\.json
+# Scripts that depend on local environment of working machine.
+# For example: update foundation assemblies, create plugin projects for debug, etc.
+LocalScripts/
