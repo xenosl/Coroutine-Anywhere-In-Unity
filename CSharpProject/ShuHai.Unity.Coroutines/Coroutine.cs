@@ -38,7 +38,8 @@ namespace ShuHai.Unity.Coroutines
         /// <param name="routine">The coroutine to start.</param>
         /// <param name="name">Name of the coroutine, commonly used for debug log.</param>
         /// <param name="done">Callback executes when the coroutine is done.</param>
-        public Coroutine(IEnumerator routine, string name, Action done = null) : this(routine, name, 1, done) { }
+        public Coroutine(IEnumerator routine, string name, Action done = null)
+            : this(routine, name, GetDefaultUpdateMethod(), 1, done) { }
 
         /// <summary>
         ///     Initialize a new coroutine with specified name, update multiplier and optional callback on its execution done.
@@ -47,12 +48,14 @@ namespace ShuHai.Unity.Coroutines
         /// <param name="name">Name of the coroutine, commonly used for debug log.</param>
         /// <param name="updateMultiplier">Determines how many times the coroutine is executed per frame.</param>
         /// <param name="done">Callback executes when the coroutine is done.</param>
-        public Coroutine(IEnumerator routine, string name, int updateMultiplier, Action done = null)
+        public Coroutine(IEnumerator routine, string name,
+            UpdateMethod updateMethod, int updateMultiplier = 1, Action done = null)
         {
             Routine = routine ?? throw new ArgumentNullException(nameof(routine));
 
             this.name = name;
 
+            UpdateMethod = updateMethod;
             UpdateMultiplier = updateMultiplier;
 
             if (done != null)
@@ -113,8 +116,7 @@ namespace ShuHai.Unity.Coroutines
             LogStart();
 
             startedInstances.Add(Routine, this);
-
-            updates += Update;
+            AddToUpdateList(this);
 
             MoveNext();
         }
@@ -124,16 +126,20 @@ namespace ShuHai.Unity.Coroutines
         /// </summary>
         /// <param name="routine">The coroutine to start.</param>
         /// <param name="done">Callback that executes when the coroutine stops.</param>
-        public static Coroutine Start(IEnumerator routine, Action done = null) { return Start(routine, null, done); }
+        public static Coroutine Start(IEnumerator routine, Action done = null)
+        {
+            return Start(routine, null, GetDefaultUpdateMethod(), done);
+        }
 
         /// <summary>
         ///     Initialize a new coroutine and start it.
         /// </summary>
         /// <param name="routine">The coroutine to start.</param>
         /// <param name="name">Name of the coroutine, commonly used for debug log.</param>
+        /// <param name="updateMethod">Determines from where the coroutine is automantically updated.</param>
         /// <param name="done">Callback that executes when the coroutine stops.</param>
         /// <returns></returns>
-        public static Coroutine Start(IEnumerator routine, string name, Action done = null)
+        public static Coroutine Start(IEnumerator routine, string name, UpdateMethod updateMethod, Action done = null)
         {
             if (routine == null)
                 throw new ArgumentNullException(nameof(routine));
@@ -141,7 +147,7 @@ namespace ShuHai.Unity.Coroutines
             if (startedInstances.TryGetValue(routine, out var coroutine))
                 return coroutine;
 
-            coroutine = new Coroutine(routine, name, done);
+            coroutine = new Coroutine(routine, name, updateMethod, 1, done);
             coroutine.StartImpl();
             return coroutine;
         }
@@ -176,8 +182,7 @@ namespace ShuHai.Unity.Coroutines
                 StopCurrentYield();
             CurrentYield = null;
 
-            updates -= Update;
-
+            RemoveFromUpdateList(this);
             startedInstances.Remove(Routine);
 
             Done?.Invoke();
@@ -265,6 +270,16 @@ namespace ShuHai.Unity.Coroutines
         #region Update
 
         /// <summary>
+        ///     Indicates from where the <see cref="Update" /> method of current instance is called.
+        /// </summary>
+        /// <remarks>
+        ///     When the host project is runinng in editor and is not playing, the <see cref="Update" /> is not called if the value
+        ///     is not set to <see cref="Coroutines.UpdateMethod.EditorUpdate" /> since Update, LateUpdate and OnGUI is runtime
+        ///     messages in <see cref="MonoBehaviour" />.
+        /// </remarks>
+        public readonly UpdateMethod UpdateMethod;
+
+        /// <summary>
         ///     Determines how many times the current coroutine is updated per frame.
         /// </summary>
         public int UpdateMultiplier
@@ -273,13 +288,17 @@ namespace ShuHai.Unity.Coroutines
             set => updateMultiplier = Mathf.Clamp(value, 1, int.MaxValue);
         }
 
-        private int updateMultiplier = 1;
-
-        private void Update()
+        /// <summary>
+        ///     Update the current instance. This method is called automantically from specified <see cref="UpdateMethod" /> in
+        ///     general, but you can still call this method manually to get the current instance updated once.
+        /// </summary>
+        public void Update()
         {
             for (int i = 0; i < UpdateMultiplier; ++i)
                 UpdateImpl();
         }
+
+        private int updateMultiplier = 1;
 
         private void UpdateImpl()
         {
@@ -295,11 +314,50 @@ namespace ShuHai.Unity.Coroutines
             }
         }
 
-        private static event Action updates;
-
-        internal static void UpdateAll() { updates?.Invoke(); }
+        private static UpdateMethod GetDefaultUpdateMethod()
+        {
+#if UNITY_EDITOR
+            return UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode || UnityEditor.EditorApplication.isPaused
+                ? UpdateMethod.Update : UpdateMethod.EditorUpdate;
+#else
+            return UpdateMethod.Update;
+#endif
+        }
 
         #endregion Update
+
+        #region Update List
+
+        /// <summary>
+        ///     Update all started coroutines with specified <see cref="Coroutines.UpdateMethod" />. This method is called
+        ///     automantically in general, but you can still call this method manually to get all coroutines updated once.
+        /// </summary>
+        public static void UpdateAll(UpdateMethod updateMethod)
+        {
+            var list = updateLists[(int)updateMethod];
+            for (int i = 0; i < list.Count; ++i)
+                list[i].Update();
+        }
+
+        private static readonly List<Coroutine>[] updateLists = new List<Coroutine>[UpdateMethodTraits.Count];
+
+        private static void AddToUpdateList(Coroutine coroutine)
+        {
+            updateLists[(int)coroutine.UpdateMethod].Add(coroutine);
+        }
+
+        private static void RemoveFromUpdateList(Coroutine coroutine)
+        {
+            updateLists[(int)coroutine.UpdateMethod].Remove(coroutine);
+        }
+
+        private static void InitializeUpdateLists()
+        {
+            for (int i = 0; i < UpdateMethodTraits.Count; ++i)
+                updateLists[i] = new List<Coroutine>();
+        }
+
+        #endregion Update List
 
         private bool moveEnded;
 
@@ -433,7 +491,11 @@ namespace ShuHai.Unity.Coroutines
 
         #endregion Yield Adapters
 
-        static Coroutine() { InitializeYieldAdapters(); }
+        static Coroutine()
+        {
+            InitializeYieldAdapters();
+            InitializeUpdateLists();
+        }
 
         #region Debug
 
@@ -454,8 +516,11 @@ namespace ShuHai.Unity.Coroutines
 
         private static void Log(Coroutine coroutine, string message)
         {
-            if (DebugLogEnabled && (DebugLogPrecondition?.Invoke(coroutine) ?? false))
-                Debug.Log(message);
+            if (!DebugLogEnabled)
+                return;
+            if (DebugLogPrecondition != null && !DebugLogPrecondition(coroutine))
+                return;
+            Debug.Log(message);
         }
 
         private void LogStart() { Log(this, Name + " Start"); }
