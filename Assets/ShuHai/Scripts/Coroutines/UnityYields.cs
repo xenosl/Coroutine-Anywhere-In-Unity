@@ -48,7 +48,7 @@ namespace ShuHai.Unity.CoroutineAnywhere
         /// <summary>
         ///     See <see cref="UnityEngine.WWW.isDone" />.
         /// </summary>
-        public override bool IsDone { return WWW.isDone; }
+        public override bool IsDone { get { return WWW.isDone; } }
 
         /// <summary>
         ///     Adapt target yield object.

@@ -213,7 +213,7 @@ namespace ShuHai.Unity.CoroutineAnywhere.Demos.Editor
 
                 EditorGUILayout.LabelField(Name, EditorStyles.boldLabel);
 
-                using (new EditorGUI.IndentLevelScope(1))
+                EditorGUI.indentLevel++;
                 {
                     if (CustomGUI != null)
                         CustomGUI();
@@ -243,6 +243,7 @@ namespace ShuHai.Unity.CoroutineAnywhere.Demos.Editor
                         }
                     }
                 }
+                EditorGUI.indentLevel--;
             }
 
             private void OnCoroutineDone()
