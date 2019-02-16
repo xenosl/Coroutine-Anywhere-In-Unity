@@ -88,15 +88,18 @@ namespace ShuHai.Unity.CoroutineAnywhere.Demos
             {
                 MaterialToGradient.color = colorGradient.NextRed();
 
+                // Support for UnityEngine.WaitForSeconds
                 if (pauseDuration != null)
                 {
                     yield return new WaitForSeconds(pauseDuration.Value);
                     pauseDuration = null;
                 }
 
+                // Nested coroutine
                 if (nestedGreenGradient)
                     yield return new Coroutine(GreenGradient());
 
+                // Stop current coroutine by break
                 if (redGradientCoroutineBreak)
                 {
                     redGradientCoroutineBreak = false;
