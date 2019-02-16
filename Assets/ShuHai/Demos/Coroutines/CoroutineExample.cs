@@ -22,35 +22,107 @@ namespace ShuHai.Unity.CoroutineAnywhere.Demos
             }
         }
 
-        public void StartColorGradient() { ColorGradientCoroutine = Coroutine.Start(ColorGradient()); }
+        #region Start & Stop
 
-        public void StopColorGradient() { ColorGradientCoroutine.Stop(); }
+        public void StartRedGradient()
+        {
+            StopRedGradient();
+            redGradientCoroutine = Coroutine.Start(ColorGradient(), OnRedGradientCoroutineDone);
+        }
 
-        private Coroutine ColorGradientCoroutine;
+        public void StopRedGradient()
+        {
+            if (redGradientCoroutine != null)
+                redGradientCoroutine.Stop();
+        }
+
+        public void StopRedGradientByBreak() { redGradientCoroutineBreak = true; }
+
+        private bool redGradientCoroutineBreak;
+        private Coroutine redGradientCoroutine;
+
+        private void OnRedGradientCoroutineDone() { redGradientCoroutine = null; }
+
+        #endregion Start & Stop
+
+        #region WaitForSeconds
+
+        public void PauseGradientForSeconds(float secnods)
+        {
+            if (redGradientCoroutine != null)
+                pauseDuration = secnods;
+        }
+
+        private float? pauseDuration;
+
+        #endregion WaitForSeconds
+
+        #region Nested
+
+        public void StartNestedGreenGradient() { nestedGreenGradient = true; }
+        public void StopNestedGreenGradient() { nestedGreenGradient = false; }
+
+        private bool nestedGreenGradient;
+
+        private IEnumerator GreenGradient()
+        {
+            while (true)
+            {
+                MaterialToGradient.color = colorGradient.NextGreen();
+                if (!nestedGreenGradient)
+                    yield break;
+                yield return null;
+            }
+        }
+
+        #endregion Nested
+
+        private readonly ColorGradient colorGradient = new ColorGradient();
 
         private IEnumerator ColorGradient()
         {
             if (!MaterialToGradient)
                 yield break;
 
-            float value = MaterialToGradient.color.r, step = 0.01f;
-            float l = step, h = 1 - step;
             while (true)
             {
-                if (value < l || value > h)
-                    step = -step;
-                value = Mathf.Abs((value + step) % 1f);
-                MaterialToGradient.color = new Color(value, value, 1);
+                MaterialToGradient.color = colorGradient.NextRed();
+
+                if (pauseDuration != null)
+                {
+                    yield return new WaitForSeconds(pauseDuration.Value);
+                    pauseDuration = null;
+                }
+
+                if (nestedGreenGradient)
+                    yield return new Coroutine(GreenGradient());
+
+                if (redGradientCoroutineBreak)
+                {
+                    redGradientCoroutineBreak = false;
+                    yield break;
+                }
+
                 yield return null;
             }
         }
 
         private void OnGUI()
         {
-            if (GUILayout.Button("Start Color Gradient"))
-                StartColorGradient();
-            if (GUILayout.Button("Stop Color Gradient"))
-                StopColorGradient();
+            if (GUILayout.Button("Start Red Gradient"))
+                StartRedGradient();
+            if (GUILayout.Button("Stop Red Gradient"))
+                StopRedGradient();
+            if (GUILayout.Button("Stop Red Gradient By Break"))
+                StopRedGradientByBreak();
+
+            if (GUILayout.Button("Pause Gradient For 2 seconds"))
+                PauseGradientForSeconds(2);
+
+            if (GUILayout.Button("Start Nested Green Gradient"))
+                StartNestedGreenGradient();
+            if (GUILayout.Button("Stop Nested Green Gradient"))
+                StopNestedGreenGradient();
         }
     }
 }

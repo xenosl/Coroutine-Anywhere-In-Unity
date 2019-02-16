@@ -47,7 +47,9 @@ namespace ShuHai.Unity.CoroutineAnywhere
         /// <param name="routine">The coroutine to start.</param>
         /// <param name="name">Name of the coroutine, commonly used for debug log.</param>
         /// <param name="updateMethod">Determines from where the coroutine is automantically updated.</param>
-        /// <param name="updateMultiplier">Determines how many times the coroutine is executed per frame.</param>
+        /// <param name="updateMultiplier">
+        ///     Determines how many times the current coroutine is actually updated per <see cref="Update" /> call.
+        /// </param>
         /// <param name="done">Callback executes when the coroutine is done.</param>
         public Coroutine(IEnumerator routine, string name,
             UpdateMethod updateMethod, int updateMultiplier = 1, Action done = null)
@@ -285,13 +287,14 @@ namespace ShuHai.Unity.CoroutineAnywhere
         /// </summary>
         /// <remarks>
         ///     When the host project is runinng in editor and is not playing, the <see cref="Update" /> is not called if the value
-        ///     is not set to <see cref="CoroutineAnywhere.UpdateMethod.EditorUpdate" /> since Update, LateUpdate and OnGUI is runtime
+        ///     is not set to <see cref="CoroutineAnywhere.UpdateMethod.EditorUpdate" /> since Update, LateUpdate and OnGUI is
+        ///     runtime
         ///     messages in <see cref="MonoBehaviour" />.
         /// </remarks>
         public readonly UpdateMethod UpdateMethod;
 
         /// <summary>
-        ///     Determines how many times the current coroutine is updated per frame.
+        ///     Determines how many times the current coroutine is actually updated per <see cref="Update" /> call.
         /// </summary>
         public int UpdateMultiplier
         {
