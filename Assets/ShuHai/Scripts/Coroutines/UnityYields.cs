@@ -39,7 +39,7 @@ namespace ShuHai.Unity.CoroutineAnywhere
         /// <param name="yieldObject">Actual <see cref="WWW" /> object.</param>
         public WaitWWW(WWW yieldObject) : base(yieldObject) { }
     }
-#else
+#elif UNITY_5_3_OR_NEWER
     /// <summary>
     ///     Adaptee for <see cref="WWW" />.
     /// </summary>
